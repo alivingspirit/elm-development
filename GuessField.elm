@@ -1,8 +1,14 @@
 module GuessField (..) where
 
 import Html
+import Html.Attributes exposing (style)
 import Html.Events exposing (targetValue, on)
 import String
+
+
+(=>) : a -> b -> ( a, b )
+(=>) =
+  (,)
 
 
 type alias Model =
@@ -29,9 +35,12 @@ init int =
 
 update : Action -> Model -> Model
 update action model =
-  case action of
-    GuessChanged i ->
-      { model | guess = i }
+  if isAnswered model then
+    model
+  else
+    case action of
+      GuessChanged i ->
+        { model | guess = i }
 
 
 view : Signal.Address Action -> Model -> Html.Html
@@ -48,11 +57,11 @@ view address model =
             "Correct"
 
         Error error ->
-          error
+          ""
   in
     Html.div
       []
-      [ Html.input [ on "input" targetValue (makeMessage address) ] []
+      [ Html.input ([ on "input" targetValue (makeMessage address) ] ++ (colorAttribute model)) []
       , Html.div [] [ Html.text s ]
       ]
 
@@ -74,3 +83,24 @@ stringToAction string =
 makeMessage : Signal.Address Action -> String -> Signal.Message
 makeMessage address string =
   Signal.message address (stringToAction string)
+
+
+isAnswered : Model -> Bool
+isAnswered model =
+  case model.guess of
+    GuessNumber guess ->
+      if guess == model.answer then
+        True
+      else
+        False
+
+    _ ->
+      False
+
+
+colorAttribute : Model -> List Html.Attribute
+colorAttribute model =
+  if isAnswered model then
+    [ style [ "background-color" => "green" ] ]
+  else
+    []

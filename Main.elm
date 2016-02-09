@@ -13,7 +13,8 @@ type Action
 
 
 type GameState
-  = Started
+  = NotStarted
+  | Started
   | Finished
 
 
@@ -26,7 +27,7 @@ type alias Model =
 
 init : () -> Model
 init () =
-  Model Finished (GuessField.init 0) Maybe.Nothing
+  Model NotStarted (GuessField.init 0) Maybe.Nothing
 
 
 randomIntGenerator : Random.Generator Int
@@ -48,7 +49,17 @@ update : ( Time.Time, Action ) -> Model -> Model
 update ( timestamp, action ) model =
   case action of
     GuessFieldAction action ->
-      { model | guessField = GuessField.update action model.guessField }
+      let
+        newGuessField =
+          GuessField.update action model.guessField
+
+        newState =
+          if GuessField.isAnswered newGuessField then
+            Finished
+          else
+            model.gameState
+      in
+        { model | guessField = newGuessField, gameState = newState }
 
     NewGame ->
       let
@@ -79,8 +90,15 @@ view model =
   let
     appView =
       case model.gameState of
-        Finished ->
+        NotStarted ->
           Html.button [ onClick mailbox.address NewGame ] [ Html.text "New Game" ]
+
+        Finished ->
+          Html.div
+            []
+            [ Html.button [ onClick mailbox.address NewGame ] [ Html.text "New Game" ]
+            , GuessField.view guessFieldAddress model.guessField
+            ]
 
         Started ->
           GuessField.view guessFieldAddress model.guessField
