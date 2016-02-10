@@ -1,4 +1,4 @@
-module GuessField (..) where
+module GuessingGame.GuessField (..) where
 
 import Html
 import Html.Attributes exposing (style)
