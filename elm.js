@@ -6697,6 +6697,31 @@ Elm.SpaceGame.Star.make = function (_elm) {
    _elm.SpaceGame.Star = _elm.SpaceGame.Star || {};
    if (_elm.SpaceGame.Star.values) return _elm.SpaceGame.Star.values;
    var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Color = Elm.Color.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $Graphics$Collage = Elm.Graphics.Collage.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var view = function (star) {
+      var dot = $Graphics$Collage.path(_U.list([{ctor: "_Tuple2",_0: 0,_1: 0},{ctor: "_Tuple2",_0: 1,_1: 1}]));
+      var linestyle = _U.update($Graphics$Collage.defaultLine,{width: star.size,color: star.color});
+      return A2($Graphics$Collage.move,{ctor: "_Tuple2",_0: star.x,_1: star.y},A2($Graphics$Collage.traced,linestyle,dot));
+   };
+   var Model = F5(function (a,b,c,d,e) {    return {x: a,y: b,size: c,speed: d,color: e};});
+   return _elm.SpaceGame.Star.values = {_op: _op,Model: Model,view: view};
+};
+Elm.SpaceGame = Elm.SpaceGame || {};
+Elm.SpaceGame.Starfield = Elm.SpaceGame.Starfield || {};
+Elm.SpaceGame.Starfield.make = function (_elm) {
+   "use strict";
+   _elm.SpaceGame = _elm.SpaceGame || {};
+   _elm.SpaceGame.Starfield = _elm.SpaceGame.Starfield || {};
+   if (_elm.SpaceGame.Starfield.values) return _elm.SpaceGame.Starfield.values;
+   var _U = Elm.Native.Utils.make(_elm),
    $Array = Elm.Array.make(_elm),
    $Basics = Elm.Basics.make(_elm),
    $Color = Elm.Color.make(_elm),
@@ -6707,15 +6732,12 @@ Elm.SpaceGame.Star.make = function (_elm) {
    $Maybe = Elm.Maybe.make(_elm),
    $Random = Elm.Random.make(_elm),
    $Result = Elm.Result.make(_elm),
-   $Signal = Elm.Signal.make(_elm);
+   $Signal = Elm.Signal.make(_elm),
+   $SpaceGame$Star = Elm.SpaceGame.Star.make(_elm);
    var _op = {};
    var background = function (window) {
       return A2($Graphics$Collage.filled,$Color.black,A2($Graphics$Collage.rect,$Basics.toFloat(window.x),$Basics.toFloat(window.y)));
    };
-   var view = function (star) {
-      return A2($Graphics$Collage.move,{ctor: "_Tuple2",_0: star.x,_1: star.y},A2($Graphics$Collage.filled,star.color,$Graphics$Collage.circle(star.size)));
-   };
-   var Model = F5(function (a,b,c,d,e) {    return {x: a,y: b,size: c,speed: d,color: e};});
    var randomStarFromLayer = F2(function (windowSize,layer) {
       var randomColor = layer.colorGenerator;
       var randomSpeed = A2($Random.$int,layer.speed.min,layer.speed.max);
@@ -6725,18 +6747,23 @@ Elm.SpaceGame.Star.make = function (_elm) {
       var windowX = windowSize.x / 2 | 0;
       var randomX = A2($Random.$int,0 - windowX,windowX);
       return A6($Random.map5,
-      F5(function (x,y,size,speed,color) {    return A5(Model,$Basics.toFloat(x),$Basics.toFloat(y),size,speed,color);}),
+      F5(function (x,y,size,speed,color) {    return A5($SpaceGame$Star.Model,$Basics.toFloat(x),$Basics.toFloat(y),size,speed,color);}),
       randomX,
       randomY,
       randomSize,
       randomSpeed,
       randomColor);
    });
-   var picker = F3(function (array,$default,i) {    return A2($Maybe.withDefault,$default,A2($Array.get,i,array));});
+   var Range = F2(function (a,b) {    return {min: a,max: b};});
+   var Layer = F4(function (a,b,c,d) {    return {percent: a,size: b,speed: c,colorGenerator: d};});
+   var Model = function (a) {    return {stars: a};};
+   var getWithDefault = F3(function ($default,array,i) {    return A2($Maybe.withDefault,$default,A2($Array.get,i,array));});
    var colorGeneratorFromList = function (list) {
       var _p0 = list;
       if (_p0.ctor === "[]") {
-            return _U.crashCase("SpaceGame.Star",{start: {line: 44,column: 3},end: {line: 62,column: 68}},_p0)("Please define colors when creating a layer");
+            return _U.crashCase("SpaceGame.Starfield",
+            {start: {line: 87,column: 3},end: {line: 105,column: 76}},
+            _p0)("Please define colors when creating a layer");
          } else {
             if (_p0._1.ctor === "[]") {
                   return A2($Random.map,$Basics.always(_p0._0),A2($Random.$int,0,0));
@@ -6744,43 +6771,14 @@ Elm.SpaceGame.Star.make = function (_elm) {
                   var colors = $Array.fromList(list);
                   var length = $Array.length(colors);
                   var lenghtIndex = length - 1;
-                  return A2($Random.map,A2(picker,colors,_p0._0),A2($Random.$int,0,lenghtIndex));
+                  return A2($Random.map,A2(getWithDefault,_p0._0,colors),A2($Random.$int,0,lenghtIndex));
                }
          }
    };
    var bottomLayer = {percent: 30
                      ,size: {min: 0.4,max: 1.0}
                      ,speed: {min: 1,max: 2}
-                     ,colorGenerator: colorGeneratorFromList(_U.list([A3($Color.hsl,0,0,7),A3($Color.hsl,0,0,7),A3($Color.hsl,0,78,30)]))};
-   var layers = _U.list([bottomLayer
-                        ,{percent: 25
-                         ,size: {min: 0.6,max: 1.2}
-                         ,speed: {min: 2,max: 4}
-                         ,colorGenerator: colorGeneratorFromList(_U.list([A3($Color.hsl,0,0,20),A3($Color.hsl,0,0,20),A3($Color.hsl,0,45,37)]))}
-                        ,{percent: 15
-                         ,size: {min: 0.8,max: 1.4}
-                         ,speed: {min: 4,max: 8}
-                         ,colorGenerator: colorGeneratorFromList(_U.list([A3($Color.hsl,0,0,33),A3($Color.hsl,0,0,33),A3($Color.hsl,0,23,43)]))}
-                        ,{percent: 15
-                         ,size: {min: 1.0,max: 1.6}
-                         ,speed: {min: 8,max: 16}
-                         ,colorGenerator: colorGeneratorFromList(_U.list([A3($Color.hsl,0,0,47)]))}
-                        ,{percent: 8
-                         ,size: {min: 1.2,max: 1.8}
-                         ,speed: {min: 16,max: 32}
-                         ,colorGenerator: colorGeneratorFromList(_U.list([A3($Color.hsl,0,0,60)]))}
-                        ,{percent: 4
-                         ,size: {min: 1.4,max: 2.0}
-                         ,speed: {min: 32,max: 64}
-                         ,colorGenerator: colorGeneratorFromList(_U.list([A3($Color.hsl,0,0,73)]))}
-                        ,{percent: 2
-                         ,size: {min: 1.6,max: 2.2}
-                         ,speed: {min: 64,max: 128}
-                         ,colorGenerator: colorGeneratorFromList(_U.list([A3($Color.hsl,0,0,87)]))}
-                        ,{percent: 1
-                         ,size: {min: 1.8,max: 2.4}
-                         ,speed: {min: 128,max: 256}
-                         ,colorGenerator: colorGeneratorFromList(_U.list([A3($Color.hsl,0,0,100)]))}]);
+                     ,colorGenerator: colorGeneratorFromList(_U.list([A3($Color.hsl,0,0,0.7),A3($Color.hsl,0,0,0.7),A3($Color.hsl,0,0.78,0.3)]))};
    var getLayerFromPercentage = F2(function (layers,i) {
       getLayerFromPercentage: while (true) {
          var _p2 = layers;
@@ -6798,31 +6796,63 @@ Elm.SpaceGame.Star.make = function (_elm) {
             }
       }
    });
+   var layers = _U.list([bottomLayer
+                        ,{percent: 25
+                         ,size: {min: 0.6,max: 1.2}
+                         ,speed: {min: 2,max: 4}
+                         ,colorGenerator: colorGeneratorFromList(_U.list([A3($Color.hsl,0,0,0.2),A3($Color.hsl,0,0,0.2),A3($Color.hsl,0,0.45,0.37)]))}
+                        ,{percent: 15
+                         ,size: {min: 0.8,max: 1.4}
+                         ,speed: {min: 4,max: 8}
+                         ,colorGenerator: colorGeneratorFromList(_U.list([A3($Color.hsl,0,0,0.33),A3($Color.hsl,0,0,0.33),A3($Color.hsl,0,0.23,0.43)]))}
+                        ,{percent: 15
+                         ,size: {min: 1.0,max: 1.6}
+                         ,speed: {min: 8,max: 16}
+                         ,colorGenerator: colorGeneratorFromList(_U.list([A3($Color.hsl,0,0,0.47)]))}
+                        ,{percent: 8
+                         ,size: {min: 1.2,max: 1.8}
+                         ,speed: {min: 16,max: 32}
+                         ,colorGenerator: colorGeneratorFromList(_U.list([A3($Color.hsl,0,0,0.6)]))}
+                        ,{percent: 4
+                         ,size: {min: 1.4,max: 2.0}
+                         ,speed: {min: 32,max: 64}
+                         ,colorGenerator: colorGeneratorFromList(_U.list([A3($Color.hsl,0,0,0.73)]))}
+                        ,{percent: 2
+                         ,size: {min: 1.6,max: 2.2}
+                         ,speed: {min: 64,max: 128}
+                         ,colorGenerator: colorGeneratorFromList(_U.list([A3($Color.hsl,0,0,0.87)]))}
+                        ,{percent: 1
+                         ,size: {min: 1.8,max: 2.4}
+                         ,speed: {min: 128,max: 256}
+                         ,colorGenerator: colorGeneratorFromList(_U.list([A3($Color.hsl,0,0,1)]))}]);
    var randomLayer = A2($Random.map,getLayerFromPercentage(layers),A2($Random.$int,1,100));
    var randomStar = function (window) {    return A2($Random.andThen,randomLayer,randomStarFromLayer(window));};
    var main = function () {
       var seed = $Random.initialSeed(12334253);
-      var window = {x: 800,y: 600};
+      var window = {x: 1200,y: 600};
       return A3($Graphics$Collage.collage,
       window.x,
       window.y,
-      A2($List._op["::"],background(window),A2($List.map,view,$Basics.fst(A2($Random.generate,A2($Random.list,1000,randomStar(window)),seed)))));
+      A2($List._op["::"],
+      background(window),
+      A2($List.map,$SpaceGame$Star.view,$Basics.fst(A2($Random.generate,A2($Random.list,1000,randomStar(window)),seed)))));
    }();
-   var Layer = F4(function (a,b,c,d) {    return {percent: a,size: b,speed: c,colorGenerator: d};});
-   var Range = F2(function (a,b) {    return {min: a,max: b};});
-   return _elm.SpaceGame.Star.values = {_op: _op
-                                       ,Range: Range
-                                       ,Layer: Layer
-                                       ,bottomLayer: bottomLayer
-                                       ,layers: layers
-                                       ,colorGeneratorFromList: colorGeneratorFromList
-                                       ,picker: picker
-                                       ,Model: Model
-                                       ,randomLayer: randomLayer
-                                       ,getLayerFromPercentage: getLayerFromPercentage
-                                       ,randomStarFromLayer: randomStarFromLayer
-                                       ,randomStar: randomStar
-                                       ,view: view
-                                       ,background: background
-                                       ,main: main};
+   var main$ = $Graphics$Element.show(A2($Random.generate,
+   A2($Random.list,1000,colorGeneratorFromList(_U.list([A3($Color.hsl,0,0,0.2),A3($Color.hsl,0,0,0.2),A3($Color.hsl,0,0.45,0.37)]))),
+   $Random.initialSeed(12334253)));
+   return _elm.SpaceGame.Starfield.values = {_op: _op
+                                            ,getWithDefault: getWithDefault
+                                            ,Model: Model
+                                            ,Layer: Layer
+                                            ,Range: Range
+                                            ,bottomLayer: bottomLayer
+                                            ,layers: layers
+                                            ,randomStarFromLayer: randomStarFromLayer
+                                            ,randomStar: randomStar
+                                            ,colorGeneratorFromList: colorGeneratorFromList
+                                            ,randomLayer: randomLayer
+                                            ,getLayerFromPercentage: getLayerFromPercentage
+                                            ,background: background
+                                            ,main$: main$
+                                            ,main: main};
 };
