@@ -1,4 +1,4 @@
-module SpaceGame.Starfield (..) where
+module SpaceGame.StarField (..) where
 
 import SpaceGame.Star as Star
 import Random exposing (Seed, Generator)
