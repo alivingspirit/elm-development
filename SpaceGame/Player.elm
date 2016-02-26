@@ -11,6 +11,11 @@ type alias Model =
   }
 
 
+maxSpeed : Float
+maxSpeed =
+  1.0
+
+
 init : Model
 init =
   Model 0 0 0 0
@@ -18,14 +23,24 @@ init =
 
 velocityMultiplier : Float
 velocityMultiplier =
-  0.1
+  1.0e-2
 
 
-update : ( Int, Int ) -> Model -> Model
-update ( xmult, ymult ) model =
+clampFloat : Float -> Float -> Float -> Float
+clampFloat min max n =
+  if n < min then
+    min
+  else if n > max then
+    max
+  else
+    n
+
+
+update : { a | x : Int, y : Int } -> Model -> Model
+update input model =
   let
     ( xmult', ymult' ) =
-      ( xmult, ymult ) |> Tuple.map toFloat
+      ( input.x, input.y ) |> Tuple.map toFloat
 
     newDx =
       model.dx + (xmult' * velocityMultiplier)
@@ -33,10 +48,13 @@ update ( xmult, ymult ) model =
     newDy =
       model.dy + (ymult' * velocityMultiplier)
 
+    clamp' =
+      clampFloat -maxSpeed maxSpeed
+
     newX =
-      model.x + newDx
+      model.x + newDx |> clamp'
 
     newY =
-      model.y + newDy
+      model.y + newDy |> clamp'
   in
     { model | x = newX, y = newY, dx = newDx, dy = newDy }

@@ -9,12 +9,14 @@ import Keyboard
 import Text
 import Time exposing (..)
 import Window
+import Random
+import Utilities.Random as URandom
 
 
 type alias Input =
   { x : Int
   , y : Int
-  , delta : Int
+  , delta : Float
   , time : Time.Time
   }
 
@@ -25,9 +27,23 @@ type alias Model =
   }
 
 
+window =
+  { x = 1200, y = 600 }
+
+
 init : Model
 init =
-  Model Player.init
+  let
+    starFieldGenerator =
+      StarField.random window
+
+    seed =
+      Random.initialSeed 100
+
+    generatedValue =
+      URandom.generate starFieldGenerator seed
+  in
+    Model Player.init generatedValue.value
 
 
 timedInputSignal : Signal Input
@@ -40,9 +56,9 @@ timedInputSignal =
       Time.timestamp delta
 
     time =
-      Signal.map (\deltaTimestamp -> { time = fst deltaTimestamp, delta = snd deltaTimestamp })
+      Signal.map (\deltaTimestamp -> { time = fst deltaTimestamp, delta = snd deltaTimestamp }) deltaTimestamp
   in
-    Signal.sampleOn delta (Signal.map2 (\time input -> Model input.x input.y time.delta time.time) time Keyboard.arrows)
+    Signal.sampleOn delta (Signal.map2 (\time input -> Input input.x input.y time.delta time.time) time Keyboard.arrows)
 
 
 model : Signal Model
@@ -54,11 +70,19 @@ update : Input -> Model -> Model
 update input model =
   let
     newPlayer =
-      Player.update ( input.keyboardX, input.keyboardY ) input.delta model.player
+      Player.update input model.player
+
+    newStarField =
+      StarField.update newPlayer window model.starField
   in
-    { model | player = newPlayer }
+    { model | player = newPlayer, starField = newStarField }
+
+
+view : Model -> Element
+view model =
+  StarField.view window model.starField
 
 
 main : Signal Element
 main =
-  Signal.map show model
+  Signal.map view model
