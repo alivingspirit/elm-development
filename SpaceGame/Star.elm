@@ -13,6 +13,38 @@ type alias Model =
   }
 
 
+calculateFromRange : Float -> Float -> Float -> Float -> Float
+calculateFromRange n dn speed minmax =
+  let
+    newN =
+      n + (dn * speed)
+  in
+    if -minmax < newN && newN < minmax then
+      newN
+    else if newN < -minmax then
+      newN + (minmax * 2)
+    else
+      newN - (minmax * 2)
+
+
+update : { a | dx : Float, dy : Float } -> { b | x : Int, y : Int } -> Model -> Model
+update diff window model =
+  let
+    windowX =
+      window.x // 2
+
+    windowY =
+      window.y // 2
+
+    newX =
+      calculateFromRange model.x diff.dx (toFloat model.speed) (toFloat windowX)
+
+    newY =
+      calculateFromRange model.y diff.dy (toFloat model.speed) (toFloat windowY)
+  in
+    { model | x = newX, y = newY }
+
+
 
 {-
 view : Model -> Form

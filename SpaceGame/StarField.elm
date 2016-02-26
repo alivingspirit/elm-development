@@ -1,4 +1,4 @@
-module SpaceGame.Starfield (..) where
+module SpaceGame.StarField (..) where
 
 import SpaceGame.Star as Star
 import Random exposing (Seed, Generator)
@@ -30,6 +30,11 @@ type alias Range a =
   { min : a
   , max : a
   }
+
+
+random : { x : Int, y : Int } -> Generator Model
+random window =
+  (Random.list 1000 (randomStar window)) |> Random.map Model
 
 
 bottomLayer : Layer
@@ -132,22 +137,21 @@ background window =
   Graphics.Collage.rect (toFloat window.x) (toFloat window.y) |> Graphics.Collage.filled Color.black
 
 
-main : Element
-main =
+update : { a | dx : Float, dy : Float } -> { a | x : Int, y : Int } -> Model -> Model
+update diff window model =
   let
-    window =
-      { x = 1200, y = 600 }
+    diff' =
+      { dx = -diff.dx, dy = -diff.dy }
 
-    seed =
-      Random.initialSeed 12334253
+    newStars =
+      List.map (Star.update diff' window) model.stars
   in
-    collage
-      window.x
-      window.y
-      (background window
-        :: (seed
-              |> Random.generate (Random.list 1000 (randomStar window))
-              |> fst
-              |> List.map Star.view
-           )
-      )
+    { model | stars = newStars }
+
+
+view : { a | x : Int, y : Int } -> Model -> Element
+view window model =
+  model.stars
+    |> List.map Star.view
+    |> (::) (background window)
+    |> Graphics.Collage.collage window.x window.y
