@@ -8161,13 +8161,18 @@ Elm.SpaceGame.Player.make = function (_elm) {
    if (_elm.SpaceGame.Player.values) return _elm.SpaceGame.Player.values;
    var _U = Elm.Native.Utils.make(_elm),
    $Basics = Elm.Basics.make(_elm),
+   $Color = Elm.Color.make(_elm),
    $Debug = Elm.Debug.make(_elm),
+   $Graphics$Collage = Elm.Graphics.Collage.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm),
    $Utilities$Tuple = Elm.Utilities.Tuple.make(_elm);
    var _op = {};
+   var view = function (model) {
+      return A2($Graphics$Collage.rotate,A2($Basics.atan2,model.dy,model.dx),A2($Graphics$Collage.filled,$Color.blue,A2($Graphics$Collage.ngon,3,10)));
+   };
    var clampFloat = F3(function (min,max,n) {    return _U.cmp(n,min) < 0 ? min : _U.cmp(n,max) > 0 ? max : n;});
    var velocityMultiplier = 1.0e-2;
    var maxSpeed = 1.0;
@@ -8190,7 +8195,8 @@ Elm.SpaceGame.Player.make = function (_elm) {
                                          ,init: init
                                          ,velocityMultiplier: velocityMultiplier
                                          ,clampFloat: clampFloat
-                                         ,update: update};
+                                         ,update: update
+                                         ,view: view};
 };
 Elm.SpaceGame = Elm.SpaceGame || {};
 Elm.SpaceGame.Star = Elm.SpaceGame.Star || {};
@@ -8241,7 +8247,6 @@ Elm.SpaceGame.StarField.make = function (_elm) {
    $Color = Elm.Color.make(_elm),
    $Debug = Elm.Debug.make(_elm),
    $Graphics$Collage = Elm.Graphics.Collage.make(_elm),
-   $Graphics$Element = Elm.Graphics.Element.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Random = Elm.Random.make(_elm),
@@ -8258,10 +8263,7 @@ Elm.SpaceGame.StarField.make = function (_elm) {
       return A2($Graphics$Collage.filled,$Color.black,A2($Graphics$Collage.rect,$Basics.toFloat(window.x),$Basics.toFloat(window.y)));
    };
    var view = F2(function (window,model) {
-      return A3($Graphics$Collage.collage,
-      window.x,
-      window.y,
-      A2(F2(function (x,y) {    return A2($List._op["::"],x,y);}),background(window),A2($List.map,$SpaceGame$Star.view,model.stars)));
+      return A2(F2(function (x,y) {    return A2($List._op["::"],x,y);}),background(window),A2($List.map,$SpaceGame$Star.view,model.stars));
    });
    var randomStarFromLayer = F2(function (windowSize,layer) {
       var randomColor = layer.colorGenerator;
@@ -8387,9 +8389,8 @@ Elm.Utilities.Random.make = function (_elm) {
    $Signal = Elm.Signal.make(_elm);
    var _op = {};
    var GeneratedValue = F2(function (a,b) {    return {value: a,seed: b};});
-   var toGeneratedValue = function (tuple) {    return A2(GeneratedValue,$Basics.fst(tuple),$Basics.snd(tuple));};
-   var generate = F2(function (generator,seed) {    return toGeneratedValue(A2($Random.generate,generator,seed));});
-   return _elm.Utilities.Random.values = {_op: _op,GeneratedValue: GeneratedValue,generate: generate,toGeneratedValue: toGeneratedValue};
+   var generate = F2(function (generator,seed) {    return A2($Basics.uncurry,GeneratedValue,A2($Random.generate,generator,seed));});
+   return _elm.Utilities.Random.values = {_op: _op,GeneratedValue: GeneratedValue,generate: generate};
 };
 Elm.SpaceGame = Elm.SpaceGame || {};
 Elm.SpaceGame.Main = Elm.SpaceGame.Main || {};
@@ -8401,6 +8402,7 @@ Elm.SpaceGame.Main.make = function (_elm) {
    var _U = Elm.Native.Utils.make(_elm),
    $Basics = Elm.Basics.make(_elm),
    $Debug = Elm.Debug.make(_elm),
+   $Graphics$Collage = Elm.Graphics.Collage.make(_elm),
    $Graphics$Element = Elm.Graphics.Element.make(_elm),
    $Keyboard = Elm.Keyboard.make(_elm),
    $List = Elm.List.make(_elm),
@@ -8419,7 +8421,10 @@ Elm.SpaceGame.Main.make = function (_elm) {
       var newStarField = A3($SpaceGame$StarField.update,newPlayer,window,model.starField);
       return _U.update(model,{player: newPlayer,starField: newStarField});
    });
-   var view = function (model) {    return A2($SpaceGame$StarField.view,window,model.starField);};
+   var view = function (model) {
+      var elements = A2($Basics._op["++"],A2($SpaceGame$StarField.view,window,model.starField),_U.list([$SpaceGame$Player.view(model.player)]));
+      return A3($Graphics$Collage.collage,window.x,window.y,elements);
+   };
    var Model = F2(function (a,b) {    return {player: a,starField: b};});
    var init = function () {
       var seed = $Random.initialSeed(100);
@@ -8448,4 +8453,21 @@ Elm.SpaceGame.Main.make = function (_elm) {
                                        ,update: update
                                        ,view: view
                                        ,main: main};
+};
+Elm.Main = Elm.Main || {};
+Elm.Main.make = function (_elm) {
+   "use strict";
+   _elm.Main = _elm.Main || {};
+   if (_elm.Main.values) return _elm.Main.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $SpaceGame$Main = Elm.SpaceGame.Main.make(_elm);
+   var _op = {};
+   var main = $SpaceGame$Main.main;
+   return _elm.Main.values = {_op: _op,main: main};
 };

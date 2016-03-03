@@ -27,6 +27,7 @@ type alias Model =
   }
 
 
+window : { x : Int, y : Int }
 window =
   { x = 1200, y = 600 }
 
@@ -80,7 +81,11 @@ update input model =
 
 view : Model -> Element
 view model =
-  StarField.view window model.starField
+  let
+    elements =
+      (StarField.view window model.starField) ++ [ Player.view model.player ]
+  in
+    elements |> Graphics.Collage.collage window.x window.y
 
 
 main : Signal Element

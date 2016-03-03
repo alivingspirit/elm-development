@@ -149,9 +149,8 @@ update diff window model =
     { model | stars = newStars }
 
 
-view : { a | x : Int, y : Int } -> Model -> Element
+view : { a | x : Int, y : Int } -> Model -> List Form
 view window model =
   model.stars
     |> List.map Star.view
     |> (::) (background window)
-    |> Graphics.Collage.collage window.x window.y

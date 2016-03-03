@@ -11,9 +11,4 @@ type alias GeneratedValue a =
 
 generate : Random.Generator a -> Random.Seed -> GeneratedValue a
 generate generator seed =
-  Random.generate generator seed |> toGeneratedValue
-
-
-toGeneratedValue : ( a, Random.Seed ) -> GeneratedValue a
-toGeneratedValue tuple =
-  GeneratedValue (fst tuple) (snd tuple)
+  Random.generate generator seed |> uncurry GeneratedValue

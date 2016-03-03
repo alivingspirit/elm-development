@@ -1,6 +1,8 @@
 module SpaceGame.Player (..) where
 
 import Utilities.Tuple as Tuple
+import Graphics.Collage exposing (ngon)
+import Color exposing (blue)
 
 
 type alias Model =
@@ -58,3 +60,10 @@ update input model =
       model.y + newDy |> clamp'
   in
     { model | x = newX, y = newY, dx = newDx, dy = newDy }
+
+
+view : Model -> Graphics.Collage.Form
+view model =
+  Graphics.Collage.ngon 3 10
+    |> Graphics.Collage.filled Color.blue
+    |> Graphics.Collage.rotate (atan2 model.dy model.dx)
